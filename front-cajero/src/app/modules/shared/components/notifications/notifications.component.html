@@ -1,0 +1,162 @@
+<div
+  *ngIf="statusnotification && type !== 'delete'"
+  class="fixed top-6 right-6 z-50 w-full max-w-sm md:max-w-md lg:max-w-lg shadow-md rounded-xl overflow-hidden animate-fade-in-up transition-all duration-300"
+  role="alert"
+  [ngClass]="{
+    'bg-green-100 border-t-4 border-green-500 text-green-900':
+      type === 'success',
+    'bg-red-100 border-t-4 border-red-500 text-red-900':
+      type === 'error' || type === 'logout',
+    'bg-blue-100 border-t-4 border-blue-500 text-blue-900': type === 'info'
+  }"
+>
+  <!-- Barra superior de progreso (sin modificar) -->
+  <div class="absolute top-0 left-0 h-1 w-full">
+    <div
+      class="h-full transition-all ease-linear"
+      [ngClass]="{
+        'bg-green-500': type === 'success',
+        'bg-red-500': type === 'error' || type === 'logout',
+        'bg-blue-500': type === 'info'
+      }"
+      [style.width.%]="progressWidth"
+    ></div>
+  </div>
+
+  <!-- Contenido de la notificación con estilo similar al ejemplo -->
+  <div class="px-4 py-3">
+    <div class="flex">
+      <div class="py-1">
+        <ng-container [ngSwitch]="type">
+          <!-- Ícono para éxito (checkmark en círculo) -->
+          <svg
+            *ngSwitchCase="'success'"
+            class="h-6 w-6 mr-4 flex-shrink-0"
+            [ngClass]="{ 'text-green-500': type === 'success' }"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+              clip-rule="evenodd"
+            />
+          </svg>
+
+          <!-- Ícono para error (X en círculo) -->
+          <svg
+            *ngSwitchCase="'error'"
+            class="h-6 w-6 mr-4 flex-shrink-0"
+            [ngClass]="{
+              'text-red-500': type === 'error' || type === 'logout'
+            }"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
+
+          <!-- Ícono para logout (flecha de salida) -->
+          <svg
+            *ngSwitchCase="'logout'"
+            class="h-6 w-6 mr-4 flex-shrink-0"
+            [ngClass]="{
+              'text-red-500': type === 'error' || type === 'logout'
+            }"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+
+          <!-- Ícono para info (i en círculo) -->
+          <svg
+            *ngSwitchCase="'info'"
+            class="h-6 w-6 mr-4 flex-shrink-0"
+            [ngClass]="{ 'text-blue-500': type === 'info' }"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+        </ng-container>
+      </div>
+      <div>
+        <p class="font-bold">{{ title }}</p>
+        <p class="text-sm">{{ message }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div
+  *ngIf="statusnotification && type === 'delete'"
+  class="fixed top-6 right-6 z-50 w-full max-w-sm md:max-w-md lg:max-w-lg shadow-md rounded-xl overflow-hidden animate-fade-in-up transition-all duration-300"
+  role="alert"
+  [ngClass]="{
+    'bg-yellow-100 border-t-4 border-yellow-500 text-yellow-900':
+      type === 'delete'
+  }"
+>
+  <!-- Barra superior de progreso (sin modificar) -->
+  <div class="absolute top-0 left-0 h-1 w-full">
+    <div
+      class="h-full transition-all ease-linear bg-yellow-500"
+      [style.width.%]="progressWidth"
+    ></div>
+  </div>
+
+  <!-- Contenido de la notificación DELETE -->
+  <div class="px-4 py-3">
+    <div class="flex flex-col items-center">
+      <div class="py-1">
+        <svg
+          class="fill-current h-8 w-8 text-yellow-500"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 20 20"
+        >
+          <path
+            d="M10 15l-5.5-5.5 1.414-1.414L10 12.172l4.086-4.086L15.5 10 10 15z"
+          />
+        </svg>
+      </div>
+      <p class="font-bold text-lg">{{ title }}</p>
+      <p class="text-sm text-center">{{ message }}</p>
+      <div class="flex mt-4 w-full gap-2">
+        <button
+          class="w-1/2 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition font-medium"
+          (click)="closeNotificationDelete()"
+        >
+          Cancelar
+        </button>
+        <button
+          class="w-1/2 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-md transition font-medium"
+          (click)="confirmDelete()"
+        >
+          Aceptar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

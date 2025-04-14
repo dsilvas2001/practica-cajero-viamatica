@@ -1,0 +1,246 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm"
+>
+  <div
+    class="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 overflow-hidden"
+  >
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-primary-400 to-primary-500 px-6 py-4">
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+          <i class="fas fa-user-edit text-neutral-100"></i>
+          {{ action === "add" ? "Nuevo Cliente" : "Editar Cliente" }}
+        </h2>
+        <button
+          (click)="onClose()"
+          class="text-neutral-100 hover:text-white transition-colors"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <form
+      [formGroup]="clientForm"
+      class="p-6 grid grid-cols-1 md:grid-cols-2 gap-4"
+    >
+      <!-- Nombre -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1"
+          >Nombre</label
+        >
+        <input
+          formControlName="name"
+          type="text"
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+          [ngClass]="{
+            'border-red-500':
+              clientForm.get('name')?.invalid && clientForm.get('name')?.touched
+          }"
+        />
+        <div
+          *ngIf="clientForm.get('name')?.errors?.['required'] && clientForm.get('name')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> El nombre es requerido
+        </div>
+      </div>
+
+      <!-- Apellido -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1"
+          >Apellido</label
+        >
+        <input
+          formControlName="lastname"
+          type="text"
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+          [ngClass]="{
+            'border-red-500':
+              clientForm.get('lastname')?.invalid &&
+              clientForm.get('lastname')?.touched
+          }"
+        />
+        <div
+          *ngIf="clientForm.get('lastname')?.errors?.['required'] && clientForm.get('lastname')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> El apellido es
+          requerido
+        </div>
+      </div>
+
+      <!-- Identificación -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1"
+          >Identificación</label
+        >
+        <input
+          formControlName="identification"
+          type="text"
+          (keypress)="onlyNumbers($event)"
+          maxlength="13"
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+          [ngClass]="{
+            'border-red-500':
+              clientForm.get('identification')?.invalid &&
+              clientForm.get('identification')?.touched
+          }"
+        />
+        <div
+          *ngIf="clientForm.get('identification')?.errors?.['required'] && clientForm.get('identification')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> La identificación es
+          requerida
+        </div>
+        <div
+          *ngIf="clientForm.get('identification')?.errors?.['minlength'] && clientForm.get('identification')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> Mínimo 10 caracteres
+        </div>
+        <div
+          *ngIf="clientForm.get('identification')?.errors?.['maxlength'] && clientForm.get('identification')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> Máximo 13 caracteres
+        </div>
+        <div
+          *ngIf="clientForm.get('identification')?.errors?.['pattern'] && clientForm.get('identification')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> Solo números permitidos
+        </div>
+      </div>
+
+      <!-- Teléfono -->
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 mb-1"
+          >Teléfono</label
+        >
+        <input
+          formControlName="phonenumber"
+          type="text"
+          (keypress)="onlyNumbers($event)"
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+          [ngClass]="{
+            'border-red-500':
+              clientForm.get('phonenumber')?.invalid &&
+              clientForm.get('phonenumber')?.touched
+          }"
+        />
+        <div
+          *ngIf="clientForm.get('phonenumber')?.errors?.['required'] && clientForm.get('phonenumber')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> El teléfono es
+          requerido
+        </div>
+
+        <div
+          *ngIf="clientForm.get('phonenumber')?.errors?.['pattern'] && clientForm.get('phonenumber')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> Solo números permitidos
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-neutral-700 mb-1"
+          >Email</label
+        >
+        <input
+          formControlName="email"
+          type="email"
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+          [ngClass]="{
+            'border-red-500':
+              clientForm.get('email')?.invalid &&
+              clientForm.get('email')?.touched
+          }"
+        />
+        <div
+          *ngIf="clientForm.get('email')?.errors?.['email'] && clientForm.get('email')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> Email inválido
+        </div>
+      </div>
+
+      <!-- Dirección -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-neutral-700 mb-1"
+          >Dirección</label
+        >
+        <input
+          formControlName="address"
+          type="text"
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+          [ngClass]="{
+            'border-red-500':
+              clientForm.get('address')?.invalid &&
+              clientForm.get('address')?.touched
+          }"
+        />
+        <div
+          *ngIf="clientForm.get('address')?.errors?.['required'] && clientForm.get('address')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> La dirección es
+          requerida
+        </div>
+      </div>
+
+      <!-- Referencia de dirección -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-neutral-700 mb-1"
+          >Referencia de dirección</label
+        >
+        <textarea
+          formControlName="referenceaddress"
+          rows="2"
+          class="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-400 focus:border-primary-400"
+          [ngClass]="{
+            'border-red-500':
+              clientForm.get('referenceaddress')?.invalid &&
+              clientForm.get('referenceaddress')?.touched
+          }"
+        ></textarea>
+        <div
+          *ngIf="clientForm.get('referenceaddress')?.errors?.['required'] && clientForm.get('referenceaddress')?.touched"
+          class="text-sm text-red-600 mt-1"
+        >
+          <i class="fas fa-exclamation-circle mr-1"></i> La referencia de
+          dirección es requerida
+        </div>
+      </div>
+    </form>
+
+    <!-- Footer -->
+    <div
+      class="bg-neutral-50 px-6 py-4 flex justify-end gap-3 border-t border-neutral-200"
+    >
+      <button
+        (click)="onClose()"
+        class="px-5 py-2 text-sm font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary-400"
+      >
+        Cancelar
+      </button>
+      <button
+        (click)="saveClient()"
+        [disabled]="clientForm.invalid || isLoading"
+        class="px-5 py-2 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-400 disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        <span *ngIf="!isLoading">{{
+          action === "add" ? "Registrar" : "Guardar"
+        }}</span>
+        <span *ngIf="isLoading">
+          <i class="fas fa-circle-notch fa-spin mr-2"></i> Procesando...
+        </span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="p-6">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+    <div *ngFor="let card of cards" class="group">
+      <!-- Tarjeta con bordes premium -->
+      <div
+        class="bg-white rounded-xl p-5 shadow-lg bg-accent-100/50 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-l-[6px] border-t border-r border-b border-l-primary-titulo border-t-accent-200 border-r-accent-200 border-b-accent-200 hover:border-l-primary-500 hover:border-t-accent-300 hover:border-r-accent-300 hover:border-b-accent-300"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p
+              class="text-neutral-700 text-sm font-semibold uppercase tracking-wider"
+            >
+              {{ card.title }}
+            </p>
+            <p class="text-3xl font-bold text-primary-titulo mt-2">
+              {{ card.count }}
+            </p>
+          </div>
+          <div
+            class="p-3 rounded-full bg-gradient-to-br from-primary-400 to-warning-600 text-white shadow-md border-2 border-white/30"
+          >
+            <i class="{{ card.icon }} text-lg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

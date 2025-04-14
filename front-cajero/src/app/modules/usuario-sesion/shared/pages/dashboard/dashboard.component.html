@@ -1,0 +1,21 @@
+<div class="flex flex-row w-full h-screen">
+  <app-sidebar
+    *ngIf="menuVisible"
+    class="fixed top-0 md:static z-40 w-64 h-screen transition-transform"
+  ></app-sidebar>
+
+  <div class="flex-grow flex flex-col overflow-hidden">
+    <app-navbar class="w-full z-1"></app-navbar>
+
+    <div
+      class="hidden md:block md:fixed mt-6 pl-3 text-gray-400 cursor-pointer"
+      (click)="toggleMenu()"
+    >
+      <i class="fa-solid fa-bars text-xl"></i>
+    </div>
+
+    <div class="flex-grow overflow-y-auto border-x-4">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

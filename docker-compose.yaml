@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  app_backend:
+    build: ./back-cajero
+    ports:
+      - "${PORT}:${PORT}"
+    env_file:
+      - ./back-cajero/.env
+
+  app_frontend:
+    build: ./front-cajero
+    ports:
+      - "80:80"
+    depends_on:
+      - app_backend

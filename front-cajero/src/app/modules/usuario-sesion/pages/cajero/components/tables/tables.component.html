@@ -1,0 +1,256 @@
+<!-- Filtros y acciones -->
+<div class="w-full flex flex-wrap items-center justify-between mb-4">
+  <!-- Búsqueda -->
+  <div class="relative w-full lg:w-auto flex-grow max-w-sm min-w-[200px] mb-4">
+    <input
+      [(ngModel)]="searchTerm"
+      (input)="applyFilter()"
+      class="bg-white w-full pr-11 h-10 pl-3 py-2 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+      placeholder="Buscar cliente..."
+    />
+    <button
+      class="absolute h-8 w-8 right-1 top-1 px-2 flex items-center bg-white rounded"
+    >
+      <i class="fa-solid fa-magnifying-glass" style="color: #2b6bab"></i>
+    </button>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="flex flex-wrap gap-4 pl-4 w-full md:w-auto">
+    <!-- Botón para añadir cliente -->
+    <button
+      (click)="abrirModal(null, 'add')"
+      class="w-full md:w-auto px-5 py-2.5 flex justify-center gap-3 text-sm font-medium text-warning-600 border-warning-700 border items-center hover:bg-primary-400 hover:text-black hover:border-white rounded-lg text-center cursor-pointer"
+    >
+      <i class="fa-solid fa-user-plus"></i>
+      Nuevo Cliente
+    </button>
+
+    <!-- Botón para importar desde Excel -->
+    <div class="relative w-full md:w-auto">
+      <label
+        for="excelImport"
+        class="w-full md:w-auto px-5 py-2.5 flex justify-center gap-3 text-sm font-medium text-green-600 border-green-700 border items-center hover:bg-green-50 rounded-lg text-center cursor-pointer"
+      >
+        <i class="fa-solid fa-file-excel"></i>
+        Importar Excel
+      </label>
+      <input
+        id="excelImport"
+        type="file"
+        accept=".xlsx, .xls, .csv"
+        (change)="importarExcel($event)"
+        class="hidden"
+      />
+    </div>
+
+    <!-- Botón para guardar carga masiva (solo visible cuando hay datos temporales) -->
+    <button
+      *ngIf="temporaryClients.length > 0"
+      class="w-full md:w-auto px-5 py-2.5 flex justify-center gap-3 text-sm font-medium text-white bg-blue-600 border-blue-700 border items-center hover:bg-blue-700 rounded-lg text-center cursor-pointer animate-pulse"
+    >
+      <i class="fa-solid fa-cloud-arrow-up"></i>
+      Guardar ({{ temporaryClients.length }})
+    </button>
+  </div>
+</div>
+
+<!-- Tarjeta de vista previa de carga masiva -->
+<div
+  *ngIf="temporaryClients.length > 0"
+  class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
+>
+  <div class="flex items-center justify-between mb-3">
+    <h3 class="text-lg font-semibold text-blue-800">
+      <i class="fas fa-users mr-2"></i>
+      Vista previa de carga masiva
+    </h3>
+    <span
+      class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+    >
+      {{ temporaryClients.length }} clientes a guardar
+    </span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-blue-100">
+        <tr>
+          <th
+            class="px-4 py-2 text-left text-xs font-medium text-blue-800 uppercase"
+          >
+            Nombre
+          </th>
+          <th
+            class="px-4 py-2 text-left text-xs font-medium text-blue-800 uppercase"
+          >
+            Identificación
+          </th>
+          <th
+            class="px-4 py-2 text-left text-xs font-medium text-blue-800 uppercase"
+          >
+            Teléfono
+          </th>
+          <th
+            class="px-4 py-2 text-left text-xs font-medium text-blue-800 uppercase"
+          >
+            Email
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let client of temporaryClients.slice(0, 3)"
+          class="border-b border-blue-50"
+        >
+          <td class="px-4 py-2 text-sm">
+            {{ client.name }} {{ client.lastname }}
+          </td>
+          <td class="px-4 py-2 text-sm">{{ client.identification }}</td>
+          <td class="px-4 py-2 text-sm">{{ client.phonenumber }}</td>
+          <td class="px-4 py-2 text-sm">{{ client.email }}</td>
+        </tr>
+        <tr *ngIf="temporaryClients.length > 3">
+          <td colspan="4" class="px-4 py-2 text-center text-sm text-blue-600">
+            + {{ temporaryClients.length - 3 }} clientes más...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Tabla principal de clientes -->
+<div
+  class="relative w-full h-full overflow-hidden rounded-2xl bg-white shadow-xl"
+>
+  <div class="overflow-y-auto h-[calc(100%-60px)]">
+    <table class="w-full">
+      <thead
+        class="sticky top-0 z-10 backdrop-blur-md bg-white/80 border-b border-accent-200"
+      >
+        <tr class="text-center">
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Nombre</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">
+              Identificación
+            </p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Teléfono</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Email</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Dirección</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">
+              Fecha Registro
+            </p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Acciones</p>
+          </th>
+        </tr>
+      </thead>
+      <tbody *ngIf="!isLoading; else loadingSpinner">
+        <tr
+          *ngFor="let client of displayedClients"
+          class="border-b border-accent-100 hover:bg-primary-50/30 transition-colors duration-200 text-center"
+        >
+          <td class="p-4">
+            <div class="font-medium text-neutral-800">
+              {{ client.name }} {{ client.lastname }}
+            </div>
+          </td>
+          <td class="p-4">
+            <div class="font-medium text-neutral-800">
+              {{ client.identification }}
+            </div>
+          </td>
+          <td class="p-4">
+            <div class="font-medium text-neutral-800">
+              {{ client.phonenumber }}
+            </div>
+          </td>
+          <td class="p-4">
+            <div class="font-medium text-neutral-800">
+              {{ client.email }}
+            </div>
+          </td>
+          <td class="p-4">
+            <div
+              class="text-sm text-neutral-600"
+              matTooltip="{{ client.address }} - {{ client.referenceaddress }}"
+            >
+              {{ client.address }}
+            </div>
+          </td>
+          <td class="p-4">
+            <div class="text-sm text-neutral-600">
+              {{ client.createdAt | date : "dd/MM/yyyy" }}
+            </div>
+          </td>
+          <td class="p-4">
+            <div class="flex justify-center gap-3">
+              <!-- Botón Editar -->
+              <button
+                (click)="abrirModal(client, 'edit')"
+                class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                matTooltip="Editar cliente"
+              >
+                <i class="fas fa-pen-to-square"></i>
+              </button>
+
+              <!-- Botón Eliminar -->
+              <button
+                (click)="showDeleteNotification(client)"
+                class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                matTooltip="Eliminar cliente"
+              >
+                <i class="fas fa-trash-can"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #loadingSpinner>
+    <div class="flex justify-center items-center h-64">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-titulo"
+      ></div>
+    </div>
+  </ng-template>
+
+  <app-pagination
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [totalItems]="filteredClients.length"
+    (pageChanged)="onPageChange($event)"
+  ></app-pagination>
+</div>
+
+<!-- Modal para agregar/editar cliente -->
+<app-client-modal
+  *ngIf="showClientModal"
+  [clientData]="selectedClient"
+  [action]="actionModal"
+  (closeModal)="closeModal()"
+  (clientUpdated)="handleClientUpdated()"
+></app-client-modal>
+
+<!-- Notificaciones -->
+<app-notifications
+  [statusnotification]="statusnotification"
+  [title]="notificationTitle"
+  [message]="notificationMessage"
+  [type]="notificationType"
+  (deleteAction)="handleDeleteAction($event)"
+></app-notifications>

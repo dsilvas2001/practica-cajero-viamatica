@@ -1,0 +1,220 @@
+<div class="flex flex-col gap-6 p-4">
+  <!-- Filtro y título -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h2 class="text-xl font-bold text-primary-titulo mb-4">
+      Asignación de Cajeros a Cajas
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="relative">
+        <input
+          type="text"
+          [(ngModel)]="filtroCajas"
+          placeholder="Buscar caja..."
+          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-400"
+        />
+        <svg
+          class="absolute left-3 top-3 h-4 w-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </div>
+      <div class="relative">
+        <input
+          type="text"
+          [(ngModel)]="filtroCajeros"
+          placeholder="Buscar cajeros..."
+          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-400"
+        />
+        <svg
+          class="absolute left-3 top-3 h-4 w-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenedor principal -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Panel de Cajeros Disponibles -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-lg font-semibold text-neutral-800 mb-4">
+        {{ cajaSeleccionada ? "Cajeros Disponibles" : "Todos los Cajeros" }}
+      </h3>
+
+      <div class="space-y-3 max-h-96 overflow-y-auto">
+        <div *ngIf="!cajaSeleccionada" class="text-sm text-neutral-500 p-3">
+          Seleccione una caja para ver cajeros disponibles
+        </div>
+
+        <div
+          *ngFor="let cajero of getCajerosFiltrados(); trackBy: trackByUserId"
+          class="border rounded-lg p-3 cursor-pointer transition-all"
+          [ngClass]="{
+            'border-primary-500 bg-accent-100':
+              cajeroSeleccionado?.userid === cajero.userid
+          }"
+          (click)="seleccionarCajero(cajero)"
+        >
+          <div class="flex items-center gap-3">
+            <div
+              class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-500"
+            >
+              <span class="text-sm font-medium">
+                {{ cajero.username.slice(0, 2).toUpperCase() }}
+              </span>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <h4 class="font-medium truncate">{{ cajero.username }}</h4>
+              <p class="text-sm text-neutral-600 truncate">
+                {{ cajero.email }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          *ngIf="cajerosDisponibles.length === 0 && cajaSeleccionada"
+          class="text-sm text-neutral-500 p-3"
+        >
+          No hay cajeros disponibles para esta caja
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel de Cajas -->
+    <div class="bg-white rounded-lg shadow-md p-6 lg:col-span-2">
+      <h3 class="text-lg font-semibold text-neutral-800 mb-4">
+        Cajas Disponibles
+      </h3>
+
+      <div
+        class="overflow-y-auto max-h-[500px]"
+        *ngIf="!isLoading; else loadingSpinner"
+      >
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div
+            *ngFor="let caja of getCajasFiltradas(); trackBy: trackByCajaId"
+            class="border rounded-lg p-4 transition-all cursor-pointer"
+            [ngClass]="{
+              'border-primary-500 bg-accent-100':
+                cajaSeleccionada?.cashId === caja.cashId
+            }"
+            (click)="seleccionarCaja(caja)"
+          >
+            <div class="flex justify-between items-start">
+              <div class="flex-1 min-w-0">
+                <h4 class="font-medium truncate">{{ caja.cashDescription }}</h4>
+                <p class="text-sm text-neutral-600 truncate">
+                  ID: {{ caja.cashId }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-1 ml-2">
+                <span
+                  *ngFor="let dot of [0, 1]"
+                  class="w-3 h-3 rounded-full"
+                  [class.bg-green-500]="(caja.assignedUsers?.length || 0) > dot"
+                  [class.bg-gray-300]="(caja.assignedUsers?.length || 0) <= dot"
+                  [class.animate-bounce]="
+                    dot === 0 && (caja.assignedUsers?.length || 0) === 1
+                  "
+                ></span>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <p class="text-sm font-medium text-neutral-700 mb-2">
+                Cajeros asignados ({{ caja.assignedUsers?.length || 0 }}/2):
+              </p>
+
+              <div
+                *ngIf="caja.assignedUsers?.length; else sinAsignar"
+                class="space-y-2 max-h-32 overflow-y-auto"
+              >
+                <div
+                  *ngFor="
+                    let usuarioAsignado of caja.assignedUsers;
+                    trackBy: trackByUserId
+                  "
+                  (click)="$event.stopPropagation()"
+                  class="p-2 rounded bg-secondary-50 cursor-default transition-colors duration-200"
+                >
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-xs text-primary-500"
+                    >
+                      {{ usuarioAsignado.username.slice(0, 2).toUpperCase() }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="font-medium text-sm truncate">
+                        {{ usuarioAsignado.username }}
+                      </p>
+                      <p class="text-xs text-neutral-600 truncate">
+                        {{ usuarioAsignado.email }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #sinAsignar>
+                <p class="text-sm text-yellow-600 italic">
+                  No hay cajeros asignados
+                </p>
+              </ng-template>
+            </div>
+
+            <button
+              *ngIf="
+                cajeroSeleccionado && cajaSeleccionada?.cashId === caja.cashId
+              "
+              (click)="$event.stopPropagation(); asignarCajeroACaja()"
+              class="w-full mt-3 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+              [disabled]="(caja.assignedUsers?.length || 0) >= 2"
+              [class.opacity-50]="(caja.assignedUsers?.length || 0) >= 2"
+              [class.cursor-not-allowed]="
+                (caja.assignedUsers?.length || 0) >= 2
+              "
+            >
+              Asignar Cajero Seleccionado
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingSpinner>
+  <div class="flex justify-center items-center h-64">
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-titulo"
+    ></div>
+  </div>
+</ng-template>
+
+<app-notifications
+  [statusnotification]="statusnotification"
+  [title]="notificationTitle"
+  [message]="notificationMessage"
+  [type]="notificationType"
+></app-notifications>

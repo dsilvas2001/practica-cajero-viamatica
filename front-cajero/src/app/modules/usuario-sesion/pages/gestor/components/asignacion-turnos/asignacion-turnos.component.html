@@ -1,0 +1,195 @@
+<div class="flex flex-col gap-6 p-4">
+  <!-- Panel de Cajas -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <h3 class="text-lg font-semibold text-neutral-800 mb-4">
+      Cajas Disponibles
+    </h3>
+
+    <!-- Contenedor con scroll horizontal -->
+    <div class="flex overflow-x-auto pb-2 gap-3">
+      <!-- Tarjetas compactas -->
+      <div
+        *ngFor="let caja of cajas"
+        class="flex-shrink-0 w-48 border rounded-lg p-3 cursor-pointer transition-all"
+        [class.border-primary-500]="cajaSeleccionada?.cashId === caja.cashId"
+        [class.bg-accent-100]="cajaSeleccionada?.cashId === caja.cashId"
+        (click)="seleccionarCaja(caja)"
+        matTooltip="Seleccionar esta caja"
+      >
+        <div class="flex justify-between items-start">
+          <div>
+            <h4 class="font-medium text-neutral-800 truncate">
+              {{ caja.cashDescription }}
+            </h4>
+            <p class="text-xs text-neutral-600 mt-1">ID: {{ caja.cashId }}</p>
+          </div>
+          <span
+            class="text-xs px-2 py-1 rounded-full"
+            [ngClass]="{
+              'bg-green-100 text-green-800': caja.estado === 'activa',
+              'bg-gray-100 text-gray-800': caja.estado === 'inactiva'
+            }"
+          >
+            {{ caja.estado | titlecase }}
+          </span>
+        </div>
+
+        <!-- Indicador de cajeros asignados -->
+        <div class="flex justify-end mt-2 gap-1">
+          <span
+            *ngFor="let dot of [0, 1]"
+            class="w-2 h-2 rounded-full"
+            [class.bg-green-500]="(caja.assignedUsers?.length || 0) > dot"
+            [class.bg-gray-300]="(caja.assignedUsers?.length || 0) <= dot"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crear Nuevo Turno -->
+  <div class="bg-white rounded-lg shadow-md p-6" *ngIf="cajaSeleccionada">
+    <h3 class="text-lg font-semibold text-neutral-800 mb-4">
+      Crear Nuevo Turno
+    </h3>
+    <div class="flex flex-col md:flex-row gap-4">
+      <input
+        type="text"
+        [(ngModel)]="nuevoTurnoDescripcion"
+        placeholder="Descripción del turno (ej: AC0008)"
+        class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-400"
+      />
+      <button
+        (click)="crearNuevoTurno()"
+        class="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+        matTooltip="Crear nuevo turno para esta caja"
+      >
+        Crear Turno
+      </button>
+    </div>
+  </div>
+
+  <!-- Listado de Turnos -->
+  <div class="bg-white rounded-lg shadow-md p-6">
+    <div
+      class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6"
+    >
+      <h3 class="text-lg font-semibold text-neutral-800">
+        {{
+          cajaSeleccionada
+            ? "Turnos de " + cajaSeleccionada.cashDescription
+            : "Todos los Turnos"
+        }}
+      </h3>
+
+      <div class="relative w-full md:w-64">
+        <input
+          type="text"
+          [(ngModel)]="buscador"
+          (input)="filtrarTurnos()"
+          placeholder="Buscar turno..."
+          class="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-400"
+        />
+        <svg
+          class="absolute left-3 top-3 h-4 w-4 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-secondary-100">
+          <tr>
+            <th
+              class="px-4 py-3 text-left text-xs font-medium text-neutral-800 uppercase tracking-wider"
+            >
+              ID Turno
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-medium text-neutral-800 uppercase tracking-wider"
+            >
+              Descripción
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-medium text-neutral-800 uppercase tracking-wider"
+            >
+              Fecha
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-medium text-neutral-800 uppercase tracking-wider"
+            >
+              Caja
+            </th>
+            <th
+              class="px-4 py-3 text-left text-xs font-medium text-neutral-800 uppercase tracking-wider"
+            >
+              Gestor
+            </th>
+          </tr>
+        </thead>
+        <tbody
+          *ngIf="!isLoading; else loadingSpinner"
+          class="bg-white divide-y divide-gray-200"
+        >
+          <tr *ngFor="let turno of turnosFiltrados" class="hover:bg-accent-50">
+            <td
+              class="px-4 py-3 whitespace-nowrap text-sm font-medium text-primary-500"
+            >
+              {{ turno.turnId }}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-neutral-700">
+              {{ turno.description }}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-neutral-700">
+              {{ turno.openDate | date : "yyyy-MM-dd HH:mm:ss" : "UTC" }}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-neutral-700">
+              {{ turno.cash.cashdescription }}
+            </td>
+            <td class="px-4 py-3 whitespace-nowrap text-sm text-neutral-700">
+              {{ turno.gestor.username }}
+            </td>
+          </tr>
+          <tr *ngIf="turnosFiltrados.length === 0">
+            <td
+              colspan="5"
+              class="px-4 py-4 text-center text-sm text-neutral-500"
+            >
+              No hay turnos disponibles
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<ng-template #loadingSpinner>
+  <div class="flex justify-center items-center h-64">
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-titulo"
+    ></div>
+  </div>
+</ng-template>
+<app-pagination
+  [currentPage]="currentPage"
+  [itemsPerPage]="itemsPerPage"
+  [totalItems]="turnos.length"
+  (pageChanged)="onPageChange($event)"
+></app-pagination>
+
+<app-notifications
+  [statusnotification]="statusnotification"
+  [title]="notificationTitle"
+  [message]="notificationMessage"
+  [type]="notificationType"
+></app-notifications>

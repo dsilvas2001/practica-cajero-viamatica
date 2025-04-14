@@ -1,0 +1,263 @@
+<!-- Campo de búsqueda y botones -->
+<div class="w-full flex flex-wrap items-center justify-between mb-4">
+  <!-- Campo de búsqueda -->
+  <div class="relative w-full lg:w-auto flex-grow max-w-sm min-w-[200px] mb-4">
+    <input
+      class="bg-white w-full pr-11 h-10 pl-3 py-2 placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+      placeholder="Buscar por el nombre del paciente..."
+    />
+    <button
+      class="absolute h-8 w-8 right-1 top-1 px-2 flex items-center bg-white rounded"
+      type="button"
+    >
+      <i class="fa-solid fa-magnifying-glass" style="color: #2b6bab"></i>
+    </button>
+  </div>
+
+  <!-- Botones -->
+  <div class="flex flex-wrap gap-4 pl-4 w-full md:w-auto">
+    <!-- Botón "Añadir Paciente" -->
+    <!-- <div class="relative w-full md:w-auto">
+      <label
+        for="fileSubmit"
+        class="w-full md:w-auto px-5 py-2.5 flex justify-center gap-3 text-sm font-medium text-warning-600 border-warning-700 border items-center hover:bg-primary-400 hover:text-black hover:border-white rounded-lg text-center cursor-pointer"
+      >
+        <i class="fa-solid fa-user-plus"></i>
+        Añadir Paciente
+      </label>
+      <input
+        id="fileSubmit"
+        type="submit"
+        (click)="abrirModal(null, 'add')"
+        class="hidden"
+      />
+    </div> -->
+
+    <!-- Botón "Importar desde Excel" -->
+    <div class="relative w-full md:w-auto">
+      <label
+        for="excelImport"
+        class="w-full md:w-auto px-5 py-2.5 flex justify-center gap-3 text-sm font-medium text-green-600 border-green-700 border items-center hover:bg-green-50 rounded-lg text-center cursor-pointer"
+        [class.opacity-50]="isLoading"
+        [class.pointer-events-none]="isLoading"
+      >
+        <span *ngIf="!isLoading">
+          <i class="fa-solid fa-file-excel"></i>
+          Importar desde Excel
+        </span>
+        <span *ngIf="isLoading" class="flex items-center gap-2">
+          <i class="fas fa-circle-notch fa-spin"></i>
+          Procesando...
+        </span>
+      </label>
+      <input
+        id="excelImport"
+        type="file"
+        accept=".xlsx, .xls"
+        (change)="importarExcel($event)"
+        [disabled]="isLoading"
+        class="hidden"
+      />
+    </div>
+  </div>
+</div>
+
+<div
+  class="relative w-full h-full overflow-hidden rounded-2xl bg-white shadow-xl"
+>
+  <!-- Encabezado de la tabla -->
+
+  <div class="overflow-y-auto h-[calc(100%-60px)]">
+    <table class="w-full">
+      <thead
+        class="sticky top-0 z-10 backdrop-blur-md bg-white/80 border-b border-accent-200"
+      >
+        <tr class="text-center">
+          <th class="p-4 hidden">ID</th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Username</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Email</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Rol</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Estado</p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Aprobado</p>
+          </th>
+          <!-- <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Creado Por</p>
+          </th> -->
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">
+              Fecha Creación
+            </p>
+          </th>
+          <th class="p-4 w-1/8">
+            <p class="text-sm font-semibold text-primary-titulo">Acciones</p>
+          </th>
+        </tr>
+      </thead>
+      <tbody *ngIf="!isLoading; else loadingSpinner">
+        <tr
+          *ngFor="let usuario of displayedUsuarios"
+          class="border-b border-accent-100 hover:bg-primary-50/30 transition-colors duration-200 text-center"
+        >
+          <td class="p-4 hidden">{{ usuario.userid }}</td>
+
+          <td class="p-4">
+            <div class="font-medium text-neutral-800 text-center">
+              {{ usuario.username }}
+            </div>
+          </td>
+
+          <td class="p-4">
+            <div class="font-medium text-neutral-800 text-center">
+              {{ usuario.email }}
+            </div>
+          </td>
+
+          <!-- Columna Rol -->
+          <td class="p-4">
+            <span
+              class="px-3 py-1 rounded-full text-sm font-medium inline-block"
+              [ngClass]="{
+                'bg-purple-100 text-purple-800':
+                  usuario.rol.rolName === 'Administrador',
+                'bg-blue-100 text-blue-800': usuario.rol.rolName === 'Gestor',
+                'bg-amber-100 text-amber-800': usuario.rol.rolName === 'Cajero'
+              }"
+            >
+              {{ usuario.rol.rolName }}
+            </span>
+          </td>
+
+          <!-- Columna Estado -->
+          <td class="p-4">
+            <span
+              class="px-3 py-1 rounded-full text-sm font-medium inline-block"
+              [ngClass]="{
+                'bg-green-100 text-green-800':
+                  usuario.userStatus.statusid === 'ACT',
+                'bg-red-100 text-red-800': usuario.userStatus.statusid !== 'ACT'
+              }"
+            >
+              {{ usuario.userStatus.statusid }}
+            </span>
+          </td>
+
+          <!-- Columna Aprobación -->
+          <td class="p-4">
+            <div class="flex items-center justify-center gap-2">
+              <!-- Estado actual -->
+              <span
+                class="px-3 py-1 rounded-full text-sm font-medium inline-block min-w-[60px] text-center"
+                [ngClass]="{
+                  'bg-green-100 text-green-800': usuario.userApproval,
+                  'bg-red-100 text-red-800': !usuario.userApproval
+                }"
+              >
+                {{ usuario.userApproval ? "Sí" : "No" }}
+              </span>
+
+              <!-- Botón de acción solo para "No" -->
+              <button
+                *ngIf="!usuario.userApproval"
+                (click)="aprobarUsuario(usuario)"
+                class="p-1.5 rounded-full bg-primary-400 hover:bg-primary-500 text-white transition-colors shadow-sm hover:shadow-md animate-bounce"
+                matTooltip="Aprobar usuario"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </td>
+
+          <!-- Columna Creado Por -->
+          <!-- <td class="p-4">
+            <div class="text-sm text-neutral-600 text-center">
+              {{ usuario.createdBy?.userid || "Sistema" }}
+            </div>
+          </td> -->
+
+          <!-- Columna Fecha Creación -->
+          <td class="p-4">
+            <div class="text-sm text-neutral-600 text-center">
+              {{ usuario.createdAt | date : "dd/MM/yyyy HH:mm" }}
+            </div>
+          </td>
+
+          <!-- Acciones -->
+          <td class="p-4">
+            <div class="flex justify-center gap-3">
+              <!-- Botón Editar -->
+              <button
+                (click)="editarUsuario(usuario)"
+                class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                matTooltip="Editar usuario"
+              >
+                <i class="fas fa-pen-to-square"></i>
+              </button>
+
+              <!-- Botón Eliminar -->
+              <button
+                (click)="showDeleteNotification(usuario)"
+                class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                matTooltip="Eliminar usuario"
+              >
+                <i class="fas fa-trash-can"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <ng-template #loadingSpinner>
+    <div class="flex justify-center items-center h-64">
+      <div
+        class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-titulo"
+      ></div>
+    </div>
+  </ng-template>
+
+  <app-pagination
+    [currentPage]="currentPage"
+    [itemsPerPage]="itemsPerPage"
+    [totalItems]="usuarios.length"
+    (pageChanged)="onPageChange($event)"
+  ></app-pagination>
+
+  <app-notifications
+    [statusnotification]="statusnotification"
+    [title]="notificationTitle"
+    [message]="notificationMessage"
+    [type]="notificationType"
+    (deleteAction)="handleDeleteAction($event)"
+  ></app-notifications>
+</div>
+<!-- En tu tables.component.html -->
+<app-user-modal
+  *ngIf="showEditModal"
+  [usuario]="selectedUser"
+  (usuarioActualizado)="handleUserUpdated()"
+  (cerrarModal)="closeModal()"
+  ngSkipHydration
+>
+  <!-- Añade este atributo -->
+</app-user-modal>

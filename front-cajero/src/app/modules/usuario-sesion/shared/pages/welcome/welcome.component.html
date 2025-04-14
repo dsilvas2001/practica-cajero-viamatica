@@ -1,0 +1,31 @@
+<div class="flex flex-col flex-auto min-w-0">
+  <!-- Main -->
+  <div class="flex-auto p-6 sm:p-10">
+    <!-- Encabezado alineado a la izquierda -->
+    <div class="mb-10">
+      <h1 class="text-3xl font-bold text-primary-titulo">Panel Principal</h1>
+    </div>
+
+    <!-- Tarjetas de métricas -->
+    <div class="mb-12">
+      <app-cards [cards]="cards"></app-cards>
+    </div>
+
+    <!-- Mensaje corporativo destacado -->
+    <div
+      class="bg-accent-100/30 rounded-xl p-8 text-center border border-accent-200"
+    >
+      <h2 class="text-4xl font-bold text-primary-titulo mb-4">¡Bienvenido!</h2>
+      <p class="text-xl text-neutral-700 max-w-3xl mx-auto">
+        Plataforma inteligente para la gestión y análisis de datos
+      </p>
+    </div>
+  </div>
+  <!-- Notificación -->
+  <app-notifications
+    [statusnotification]="statusnotification"
+    [title]="notificationTitle"
+    [message]="notificationMessage"
+    [type]="notificationType"
+  ></app-notifications>
+</div>

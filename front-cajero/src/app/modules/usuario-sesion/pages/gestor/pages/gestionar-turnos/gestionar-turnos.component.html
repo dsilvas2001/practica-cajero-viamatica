@@ -1,0 +1,36 @@
+<div class="flex flex-col flex-auto min-w-0">
+  <!-- Header -->
+  <div class="flex-auto p-6 sm:p-10">
+    <div class="text-2xl md:text-3xl font-bold leading-6 text-primary-500 mb-4">
+      Panel de Gestión - Asignación de Turnos
+    </div>
+
+    <!-- Contenedor principal con pestañas -->
+    <div class="flex flex-col gap-8">
+      <!-- Pestañas de navegación -->
+      <nav class="flex space-x-4 border-b border-gray-200">
+        <button
+          *ngFor="let tab of tabs"
+          (click)="activeTab = tab.id"
+          [class]="
+            activeTab === tab.id
+              ? 'border-b-2 border-primary-500 text-primary-600 px-4 py-2 font-medium'
+              : 'text-gray-500 hover:text-gray-700 px-4 py-2 font-medium'
+          "
+        >
+          {{ tab.label }}
+        </button>
+      </nav>
+
+      <!-- Contenido dinámico según pestaña -->
+      <div class="tab-content">
+        <div *ngIf="activeTab === 'asignacion-turnos'">
+          <app-asignacion-turnos></app-asignacion-turnos>
+        </div>
+        <div *ngIf="activeTab === 'asignacion-cajeros'">
+          <app-asignacion-cajeros></app-asignacion-cajeros>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
